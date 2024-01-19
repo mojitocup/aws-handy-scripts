@@ -124,6 +124,8 @@ region=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].Place
 kernel=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].KernelId')
 security_group=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].SecurityGroups[].GroupId')
 key=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].KeyName')
+subnet_id=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].SubnetId')
+architecture=$(echo "$instance_description" | jq -r '.Reservations[].Instances[].Architecture')
 
 # Displaying the instance features
 echo "**********************************************"
@@ -184,11 +186,11 @@ done
 # Registering the AMI
 ami_name=$2 # Replace with hardcoded name if you need to
 echo "Registering the AMI: $ami_name" 
-ami=$(aws ec2 register-image --name $ami_name --architecture x86_64 --root-device-name ${devs[0]} --block-device-mappings "DeviceName=${devs[0]},Ebs={SnapshotId=${snapshots[0]}}" --query 'ImageId' --output text)
+ami=$(aws ec2 register-image --name PROD-ModulrNew3 --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=snap-06c60e9c64d73ea75}" --query 'ImageId' --output text)
 
 # Creating the EC2 instance
 echo "Creating the EC2 instance"
-instance=$(aws ec2 run-instances --image-id $ami --count 1 --instance-type $instance_type --key-name $key --security-group-ids $security_group --region $region --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$ami_name}]")
+instance=$(aws ec2 run-instances --image-id $ami --count 1 --instance-type $instance_type --key-name $key --subnet-id $subnet_id --security-group-ids $security_group --region $region --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$ami_name}]")
 
 # Reading the ID of the new instance
 new_id=$(echo $instance | jq -r '.Instances[].InstanceId')
