@@ -186,7 +186,7 @@ done
 # Registering the AMI
 ami_name="${2}_$(date +"%y%m%d_%H%M%S")" # Replace with hardcoded name if you need to
 echo "Registering the AMI: $ami_name" 
-ami=$(aws ec2 register-image --name $ami_name --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=snap-06c60e9c64d73ea75}" --query 'ImageId' --output text)
+ami=$(aws ec2 register-image --name $ami_name --architecture $architecture --virtualization hvm --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=snap-06c60e9c64d73ea75}" --query 'ImageId' --output text)
 
 # Creating the EC2 instance
 echo "Creating the EC2 instance"
